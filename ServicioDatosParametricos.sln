@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{1CAC821D-E9F2-4FEA-B4AE-3329FE5B8F3C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{7349C1DB-A077-4BF1-9199-C9696B190203}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.Coppel.SDPC.Core", "backend\Com.Coppel.SDPC.Core\Com.Coppel.SDPC.Core.csproj", "{6DE1C9E1-3F09-4075-BB81-C142898D1B75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.Coppel.SDPC.Cqrs", "backend\Com.Coppel.SDPC.Cqrs\Com.Coppel.SDPC.Cqrs.csproj", "{C7934FDA-97D8-47D4-97EF-630DD2B7B156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.Coppel.SDPC.Application", "backend\Com.Coppel.SDPC.Application\Com.Coppel.SDPC.Application.csproj", "{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.Coppel.SDPC.Infrastructure", "backend\Com.Coppel.SDPC.Infrastructure\Com.Coppel.SDPC.Infrastructure.csproj", "{AFDE7053-566A-4191-AA05-B527C50A74D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.Coppel.SDPC.ServicioDatosParametricosCartera", "frontend\Com.Coppel.SDPC.ServicioDatosParametricosCartera\Com.Coppel.SDPC.ServicioDatosParametricosCartera.csproj", "{6C34047C-1FE2-4382-AB81-84BC408EE074}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6DE1C9E1-3F09-4075-BB81-C142898D1B75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE1C9E1-3F09-4075-BB81-C142898D1B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE1C9E1-3F09-4075-BB81-C142898D1B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE1C9E1-3F09-4075-BB81-C142898D1B75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7934FDA-97D8-47D4-97EF-630DD2B7B156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7934FDA-97D8-47D4-97EF-630DD2B7B156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7934FDA-97D8-47D4-97EF-630DD2B7B156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7934FDA-97D8-47D4-97EF-630DD2B7B156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFDE7053-566A-4191-AA05-B527C50A74D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFDE7053-566A-4191-AA05-B527C50A74D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFDE7053-566A-4191-AA05-B527C50A74D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFDE7053-566A-4191-AA05-B527C50A74D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C34047C-1FE2-4382-AB81-84BC408EE074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C34047C-1FE2-4382-AB81-84BC408EE074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C34047C-1FE2-4382-AB81-84BC408EE074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C34047C-1FE2-4382-AB81-84BC408EE074}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6DE1C9E1-3F09-4075-BB81-C142898D1B75} = {1CAC821D-E9F2-4FEA-B4AE-3329FE5B8F3C}
+		{C7934FDA-97D8-47D4-97EF-630DD2B7B156} = {1CAC821D-E9F2-4FEA-B4AE-3329FE5B8F3C}
+		{E403FA25-E8A2-45AC-8D52-21C1DA35B6D5} = {1CAC821D-E9F2-4FEA-B4AE-3329FE5B8F3C}
+		{AFDE7053-566A-4191-AA05-B527C50A74D7} = {1CAC821D-E9F2-4FEA-B4AE-3329FE5B8F3C}
+		{6C34047C-1FE2-4382-AB81-84BC408EE074} = {7349C1DB-A077-4BF1-9199-C9696B190203}
+	EndGlobalSection
+EndGlobal
