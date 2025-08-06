@@ -1,6 +1,8 @@
 ﻿using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Application.Models.Persistence;
+using iText.Kernel.Crypto;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -188,5 +190,72 @@ public static class Utils
 		}
 
 		return result;
+	}
+
+	public static bool IsFileLocked(FileInfo file)
+	{
+		try
+		{
+			using FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+			stream.Close();
+		}
+		catch (IOException)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private static List<KeyValuePair<string, string>> ProcessConnectiosnJson(JToken? json)
+	{
+		List<KeyValuePair<string, string>> result = [];
+
+		if (json != null)
+		{
+			foreach (JToken item in json.ToList())
+			{
+				JProperty jProperty = item.ToObject<JProperty>()!;
+				if (jProperty != null)
+				{
+					var aux = System.Environment.Version;
+					string dataBasePath = $"{_basePath.Replace("\\bin\\Debug\\net6.0", "")}\\Resources\\Databases";
+					var connection = (!IsInTesting()) ?
+						new KeyValuePair<string, string>(jProperty.Name, jProperty.Value.ToString()) :
+						new KeyValuePair<string, string>(jProperty.Name, $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={dataBasePath}\\{jProperty.Name}.mdf;Integrated Security=True");
+					result.Add(connection);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	public static List<KeyValuePair<string, string>> GetConnectionStrings()
+	{
+		List<KeyValuePair<string, string>> connections = [];
+		string path = Path.GetFullPath("./");
+		string connectionsFilePath = Path.GetFullPath(Path.Combine(path, "connections.txt"));
+
+		try
+		{
+			string decryptedText = AesCipher.DecryptFile(connectionsFilePath);
+
+			var jobjet = JObject.Parse(decryptedText);
+			if (jobjet != null)
+			{
+				JToken? json = jobjet.SelectToken("ConnectionStrings");
+				connections = ProcessConnectiosnJson(json);
+			}
+
+			return connections;
+		}
+		catch (Exception)
+		{
+			Debug.WriteLine("So se pudo obtener la lista de conexiones");
+			throw;
+		}
+
+
 	}
 }
