@@ -1,7 +1,6 @@
 ﻿using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Core.Cat;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
 

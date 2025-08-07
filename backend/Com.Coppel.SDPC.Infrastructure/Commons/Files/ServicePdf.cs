@@ -22,14 +22,14 @@ public class ServicePdf : IServicePdf
 	private string _logoPath = string.Empty;
 	private DataTable _table = new();
 	private FileContentVM _request = new();
-	public string _empleado = string.Empty;
+	public string Empleado { get; set; } = string.Empty;
 
 	public string CreateFile(FileContentVM request, string logoPath)
 	{
 		_request = request;
 		_logoPath = logoPath;
 		_table = Utils.ConvertDataToTable(_request.ViewModel, _request.Data);
-		_empleado = _request.Empleado;
+		Empleado = _request.Empleado;
 
 		string result = Utils.CheckFile(_request.PuntoDeConsumo, request.TableName, _request.Area, false, _request.ExtraFile);
 

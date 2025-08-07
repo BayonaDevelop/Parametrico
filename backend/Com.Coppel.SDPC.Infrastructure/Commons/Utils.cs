@@ -3,6 +3,7 @@ using Com.Coppel.SDPC.Application.Models.Persistence;
 using iText.Kernel.Crypto;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -255,7 +256,7 @@ public static class Utils
 			Debug.WriteLine("So se pudo obtener la lista de conexiones");
 			throw;
 		}
-
-
 	}
+
+	
 }

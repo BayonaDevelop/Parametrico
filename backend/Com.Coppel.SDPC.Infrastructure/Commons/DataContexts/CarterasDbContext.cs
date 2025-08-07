@@ -20,6 +20,7 @@ public partial class CarterasDbContext : DbContext
 
 	partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1192:String literals should not be duplicated", Justification = "It was defined by EntityFrameworkCore Scaffold")]
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.Entity<CarCifraControlOperacion>(entity =>
