@@ -2,7 +2,7 @@
 
 public interface IServiceAsignacionDeLinea
 {
-	bool ProcessParams(string token);
+	bool ProcessParamsDaily(string token);
 
-	bool ProcessCarterasAfter20(string token);
+	bool ProcessParametersCarterasAfter20(string token);
 }

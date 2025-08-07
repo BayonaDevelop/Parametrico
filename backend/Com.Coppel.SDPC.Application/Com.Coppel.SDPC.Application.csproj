@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Com.Coppel.SDPC.Core\Com.Coppel.SDPC.Core.csproj" />
     <ProjectReference Include="..\Com.Coppel.SDPC.Cqrs\Com.Coppel.SDPC.Cqrs.csproj" />
   </ItemGroup>

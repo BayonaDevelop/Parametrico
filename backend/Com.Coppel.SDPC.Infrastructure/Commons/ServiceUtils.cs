@@ -13,7 +13,7 @@ namespace Com.Coppel.SDPC.Infrastructure.Commons;
 public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 {
 	private readonly Serilog.ILogger _log = Log.Logger;
-	protected readonly CatalogosDbContext _dbContext = catalogosDbContext;
+	protected readonly CatalogosDbContext _catalogosDbContext = catalogosDbContext;
 
 	private void LogParametersDownload(string message, ApiResultType downloadResult)
 	{
@@ -46,30 +46,19 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 		}
 	}
 
-	protected dynamic GetDataFromApi(PuntoDeConsumoVM puntoDeConsumo, string cartera = null!)
+	protected async Task<dynamic> GetDataFromApi(PuntoDeConsumoVM puntoDeConsumo, string cartera = null!, string jsonTestData = null!)
 	{
 		dynamic response;
 
+		string uri = $"{puntoDeConsumo.RutaServicio}{cartera ?? string.Empty}";
+		
 		if (Utils.IsInTesting())
 		{
-			string basePath = $"{Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!.Replace("file:\\", "")!}\\Assets\\";
-			string dataPath = $"{basePath}Data\\Catalogos\\{puntoDeConsumo.IdFuncionalidad}\\1-Api.json";
-
-			string jsonData = File.ReadAllText(dataPath);
-
-			response = FetchStringJsonFromGetAsync(puntoDeConsumo.RutaServicio, jsonData, new CancellationToken())
-				.ConfigureAwait(false)
-				.GetAwaiter()
-				.GetResult();
+			response = await FetchStringJsonFromGetAsync(uri, jsonTestData, new CancellationToken(false));
 		}
 		else
 		{
-			string carteraString = cartera ?? string.Empty;
-			string uri = $"{puntoDeConsumo.RutaServicio}{(cartera == null ? "" : carteraString)}";
-			response = FetchStringJsonFromGetAsync(uri, null!, new CancellationToken())
-				.ConfigureAwait(false)
-				.GetAwaiter()
-				.GetResult();
+			response = await FetchStringJsonFromGetAsync(uri, null!, new CancellationToken(false));
 		}
 
 		return response;
@@ -79,7 +68,7 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 	{
 		try
 		{
-			return _dbContext.CtlPuntosdeconsumos.AsNoTracking().Select(i => new PuntoDeConsumoVM
+			return _catalogosDbContext.CtlPuntosdeconsumos.AsNoTracking().Select(i => new PuntoDeConsumoVM
 			{
 				IdFuncionalidad = i.IdFuncionalidad,
 				Flag = i.Flag!.Value,
@@ -103,8 +92,8 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 			DateTime todayDate = DateTime.MinValue;
 			DateTime after20Date = DateTime.MinValue;
 
-			CtlParametrosautenticacion today = _dbContext.CtlParametrosautenticacions.FirstOrDefault(i => i.NombreParametro!.CompareTo("DEBUG_TODAY") == 0)!;
-			CtlParametrosautenticacion after20 = _dbContext.CtlParametrosautenticacions.FirstOrDefault(i => i.NombreParametro!.CompareTo("DEBUG_TODAY_AFTER20") == 0)!;
+			CtlParametrosautenticacion today = _catalogosDbContext.CtlParametrosautenticacions.FirstOrDefault(i => i.NombreParametro!.CompareTo("DEBUG_TODAY") == 0)!;
+			CtlParametrosautenticacion after20 = _catalogosDbContext.CtlParametrosautenticacions.FirstOrDefault(i => i.NombreParametro!.CompareTo("DEBUG_TODAY_AFTER20") == 0)!;
 
 			if (today != null)
 			{
@@ -137,7 +126,7 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 		string result = string.Empty;
 		try
 		{
-			List<string> listOfEmails = [.. _dbContext.CatCorreosOperaciones
+			List<string> listOfEmails = [.. _catalogosDbContext.CatCorreosOperaciones
 			.AsNoTracking()
 			.Where(i => i.Tipo == (int)mailType)
 			.Select(i => i.Correo)];
@@ -156,8 +145,7 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 	protected void DownloadParameters(dynamic serviceApi, string token, PuntoDeConsumoVM puntoDeConsumo)
 	{
 		string message = string.Format(SystemMessages.DESCARGA_PARAMETROS, puntoDeConsumo.NomTbDestino);
-		_log.Information(message);
-		ApiResultType getDataResult = serviceApi.GetDataFromApi(token, puntoDeConsumo);
+		ApiResultType getDataResult = serviceApi.GetData(token, puntoDeConsumo);
 		LogParametersDownload(message, getDataResult);
 	}
 }

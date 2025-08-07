@@ -6,14 +6,14 @@ using Com.Coppel.SDPC.Application.Models.Persistence;
 using Com.Coppel.SDPC.Application.Models.Services;
 using Com.Coppel.SDPC.Infrastructure.Commons;
 using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Com.Coppel.SDPC.Infrastructure.Services;
 
 public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 {
 	/// Inyección de servicios
-	private readonly Logger<ServiceAsignacionDeLinea> _log;
+	private readonly Serilog.ILogger _log = Log.Logger;
 	private readonly CarterasDbContext _carterasDbContext;
 	private readonly IServiceApiAsignacionDeLinea _serviceApi;
 	private readonly IServiceEmail _serviceEmail;
@@ -28,14 +28,12 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 	
 	public ServiceAsignacionDeLinea
 	(
-		Logger<ServiceAsignacionDeLinea> log,
 		IServiceApiAsignacionDeLinea serviceApi,
 		IServiceEmail serviceEmail, 
 		IServiceExcel serviceExcel, 
 		IServicePdfAignacionLineasCredito servicePdf
 	) : base(new())
 	{
-		_log = log;
 		_carterasDbContext = new();
 		_serviceApi = serviceApi;
 		_serviceEmail = serviceEmail;
@@ -55,7 +53,7 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 		_today = DateTime.Now;
 	}
 
-	bool IServiceAsignacionDeLinea.ProcessParams(string token)
+	public bool ProcessParamsDaily(string token)
 	{
 		string message;
 		bool result;
@@ -63,7 +61,7 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 		try
 		{
 			message = string.Format(SystemMessages.INICIO_PROCESO, _puntoDeConsumo.NomFuncionalidad);
-			_log.LogInformation(message);
+			_log.Information(message);
 			DownloadParameters(_serviceApi, token, _puntoDeConsumo);
 
 			result = true;
@@ -76,7 +74,7 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 		return result;
 	}
 
-	bool IServiceAsignacionDeLinea.ProcessCarterasAfter20(string token)
+	public bool ProcessParametersCarterasAfter20(string token)
 	{
 		throw new NotImplementedException();
 	}

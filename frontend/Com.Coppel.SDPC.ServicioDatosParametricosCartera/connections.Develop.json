@@ -1,0 +1,10 @@
+{
+  "ConnectionStrings": {
+    "Carteras": "data source=10.201.85.37;initial catalog=Carteras;user id=sysdesarrollo; password=yWHk235h$32HGw;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True",
+    "Cat": "data source=10.197.215.252;initial catalog=CAT;user id=sysdesarrollo; password=qWHk235h$32HGw;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True",
+    "Catalogos": "data source=10.201.28.11;initial catalog=Catalogos;user id=sysdesarrollo; password=hRAExgXLst8RRbTS6wM5;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True",
+    "ControlTiendas": "data source=10.201.59.212;initial catalog=ControlTiendas;user id=syscontactabilidad; password=bu90eXFcvIIt3MF8;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True",
+    "Emision20": "data source=10.201.85.37;initial catalog=Emision20;user id=sysdesarrollo; password=yWHk235h$32HGw;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True",
+    "ListadosCobranza": "data source=10.197.215.253;initial catalog=ListadosCobranza;user id=sysdesarrollo; password=Tra1RLD0aCrEtrItHIy5;MultipleActiveResultSets=True;App=EntityFramework;TrustServerCertificate=True"
+  }
+}

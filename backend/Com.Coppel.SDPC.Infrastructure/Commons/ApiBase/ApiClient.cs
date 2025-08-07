@@ -127,13 +127,9 @@ public class ApiClient
 
 				HttpResponseMessage response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-				if (response == null || !response.IsSuccessStatusCode)
+				if (!(response == null || !response.IsSuccessStatusCode))
 				{
-					result = string.Empty;
-				}
-				else if (!response.IsSuccessStatusCode)
-				{
-					result = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+					result = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false); 
 				}
 			}
 
@@ -150,14 +146,10 @@ public class ApiClient
 
 			JToken cjson = null!;
 
-			try
+			if (!json!.First!.SelectToken("cjson")!.ToString().IsNullOrEmpty())
 			{
 				cjson = json!.First!.SelectToken("cjson")!.Value<JToken>()!;
 				json = cjson;
-			}
-			catch
-			{
-				Debug.WriteLine("Ok ...");
 			}
 
 			return json!;

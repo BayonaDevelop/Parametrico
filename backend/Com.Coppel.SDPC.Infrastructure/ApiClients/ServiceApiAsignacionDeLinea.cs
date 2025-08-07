@@ -11,7 +11,12 @@ namespace Com.Coppel.SDPC.Infrastructure.ApiClients;
 
 public class ServiceApiAsignacionDeLinea : ServiceUtils, IServiceApiAsignacionDeLinea
 {
-	public ServiceApiAsignacionDeLinea() : base(new CatalogosDbContext()) { }
+	private readonly string _assetsPath;
+
+	public ServiceApiAsignacionDeLinea() : base(new()) 
+	{ 
+		_assetsPath = $"{Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!.Replace("file:\\", "")!}\\Assets\\";
+	}
 
 	public ApiResultType GetData(string token, PuntoDeConsumoVM puntoDeConsumo)
 	{
@@ -19,8 +24,10 @@ public class ServiceApiAsignacionDeLinea : ServiceUtils, IServiceApiAsignacionDe
 
 		try
 		{
-			dynamic response = GetDataFromApi(puntoDeConsumo);
-
+			dynamic response = FetchStringJsonFromGetAsync($"{puntoDeConsumo.RutaServicio}", string.Empty, new CancellationToken())
+			.ConfigureAwait(false)
+			.GetAwaiter()
+			.GetResult();
 
 
 			if (response == null)
