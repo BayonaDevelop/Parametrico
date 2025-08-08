@@ -138,7 +138,6 @@ public class ApiClient
 				throw null!;
 			}
 
-
 			JObject data = JObject.Parse(result);
 			var json = data
 					.SelectToken("data")!

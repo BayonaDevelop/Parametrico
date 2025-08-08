@@ -4,6 +4,7 @@ using Com.Coppel.SDPC.Application.Infrastructure.Services;
 using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Application.Models.Persistence;
 using Com.Coppel.SDPC.Application.Models.Services;
+using Com.Coppel.SDPC.Core.Catalogos;
 using Com.Coppel.SDPC.Infrastructure.Commons;
 using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
 using Serilog;
@@ -25,7 +26,13 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 	private readonly string _contactsOfCarteraCentral;
 	private readonly List<int> _listOfValidStatusToBeCensed;
 	private readonly DateTime _today;
-	
+
+	private List<dynamic> _parameters;
+	private List<CatParametrosasignacionlinea> _catParametrosasignacionlineas;
+	private List<CatParametrosasignacionlineaHistorial> _catParametrosasignacionlineasOldInCatalogos;
+	private List<CatParametrosasignacionlineaHistorial> _catParametrosasignacionlineasOldInCarteras;
+	private List<CatParametrosasignacionlinea> _catParametrosasignacionlineaBeforeUpdate;
+
 	public ServiceAsignacionDeLinea
 	(
 		IServiceApiAsignacionDeLinea serviceApi,
@@ -51,18 +58,35 @@ public class ServiceAsignacionDeLinea: ServiceUtils, IServiceAsignacionDeLinea
 			(int) EstatusType.Fallido
 		];
 		_today = DateTime.Now;
+
+		_parameters = [];
+		_catParametrosasignacionlineas = [];
+		_catParametrosasignacionlineasOldInCatalogos = [];
+		_catParametrosasignacionlineasOldInCarteras = [];
+		_catParametrosasignacionlineaBeforeUpdate = [];
+	}
+
+	private List<dynamic> GetSensedParameters()
+	{
+
 	}
 
 	public bool ProcessParamsDaily(string token)
 	{
+		List<int> validStatus = [(int)EstatusType.PorActualizar, (int)EstatusType.EnProceso, (int)EstatusType.Actualizado, (int)EstatusType.Fallido];
 		string message;
 		bool result;
 
 		try
-		{
+		{			
 			message = string.Format(SystemMessages.INICIO_PROCESO, _puntoDeConsumo.NomFuncionalidad);
-			_log.Information(message);
+			_log.Verbose(message);
+			
 			DownloadParameters(_serviceApi, token, _puntoDeConsumo);
+			_parameters = CensusParameters();
+
+			message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+			_log.Verbose(message);
 
 			result = true;
 		}

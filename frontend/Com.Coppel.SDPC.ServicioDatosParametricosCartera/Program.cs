@@ -1,10 +1,11 @@
 ﻿using Com.Coppel.SDPC.Infrastructure.Commons;
+using System.Diagnostics;
+
 
 namespace Com.Coppel.SDPC.ServicioDatosParametricosCartera;
 
 public static class Program
 {
-
 	private static HostConfiguration? _configuration;
 
 	public static async Task Main(string[] args)
@@ -27,8 +28,12 @@ public static class Program
 			}
 
 			int minute = 1000 * 60;
+
+
+			_configuration._log.Information(SystemMessages.SEPARADOR_SIMPLE);
 			string messaage = string.Format(SystemMessages.ITERATION, (i + 1));
-			_configuration._log.Information(messaage);
+			_configuration._log.Information(messaage);			
+			
 			await _configuration.RunDailyEvents();
 			await Task.Delay(minute * _configuration._minutsTowait);
 		}
