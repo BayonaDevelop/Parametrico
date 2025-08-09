@@ -1,5 +1,6 @@
 ﻿namespace Com.Coppel.SDPC.Application.Models.ApiModels.Resposes.ConversionLineasCredito;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "We need to break Naming Styles")]
 public class ValoresVM
 {
 	public int prcCalcularCSA { get; set; }

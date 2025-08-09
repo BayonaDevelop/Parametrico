@@ -19,4 +19,8 @@ public static class SystemMessages
 	public static readonly string ERROR_ACTUALIZAR_TABLA	= @"    ° Error al actualizar a la tabla [{0}]";
 	public static readonly string SEND_MAIL								= @"  -> Se envió el correo de Cifras de Control de {0}";
 	public static readonly string ERROR_SEND_MAIL					= @"  -> Error al enviar el correo de Cifras de Control de  {0}";
+	public static readonly string ERROR_CONEXION_DATABASE = @"  -> No se pudo establecer conexión con {0}";
+	public static readonly string VIGOR_CARTERA						= @"  -> Cartera solo entra en vigor el día 20. Actualmente es: {0}";
+	public static readonly string PARAMETROS_SIN_CORTE		= @"  -> No existen parametros por procesar para este corte";
+	public static readonly string PARAMETROS_FUERA_RANGO  = @"  -> La fecha actual se encuentra fuera del rango permitido para actualizar({0}-{1} del mes en curso)";
 }

@@ -31,7 +31,7 @@ public static class Utils
 		return -1;
 	}
 
-	private static DbContext GetDbContext(Type table)
+	public static DbContext GetDbContext(Type table)
 	{
 		var namespaceParts = table.FullName!.Split('.');
 		var connectionStringName = namespaceParts[4];
@@ -239,8 +239,7 @@ public static class Utils
 				JProperty jProperty = item.ToObject<JProperty>()!;
 				if (jProperty != null)
 				{
-					var aux = System.Environment.Version;
-					string dataBasePath = $"{_basePath.Replace("\\bin\\Debug\\net6.0", "")}\\Resources\\Databases";
+					string dataBasePath = $"{_basePath}\\Resources\\Databases";
 					var connection = (!IsInTesting()) ?
 						new KeyValuePair<string, string>(jProperty.Name, jProperty.Value.ToString()) :
 						new KeyValuePair<string, string>(jProperty.Name, $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={dataBasePath}\\{jProperty.Name}.mdf;Integrated Security=True");
@@ -280,13 +279,8 @@ public static class Utils
 
 	public static string GetTableName(Type table)
 	{
-		var namespaceParts = table.FullName!.Split('.');
-		var isPostgreSQL = namespaceParts[4].CompareTo("CarteraEnLinea") == 0;
 		var dbContext = GetDbContext(table);
 		var entityType = dbContext.Model.FindEntityType(table);
-		var schemaText = isPostgreSQL ? "public" : "dbo";
-
-		var schemaName = schemaText;
 		var tableName = entityType!.GetTableName();
 
 		return tableName == string.Empty ? string.Empty : $"{tableName}";

@@ -1,7 +1,6 @@
 ﻿using Com.Coppel.SDPC.Application.Commons.Files;
 using Com.Coppel.SDPC.Application.Infrastructure.ApiClients;
 using Com.Coppel.SDPC.Application.Infrastructure.Services;
-using Com.Coppel.SDPC.Application.Models.ApiModels.Resposes.AsignacionDeLinea;
 using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Application.Models.Persistence;
 using Com.Coppel.SDPC.Application.Models.Reports.AsignacionLinea;
@@ -11,11 +10,9 @@ using Com.Coppel.SDPC.Core.Catalogos;
 using Com.Coppel.SDPC.Infrastructure.Commons;
 using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
 using Dapper;
-using DocumentFormat.OpenXml.Spreadsheet;
 using EFCore.BulkExtensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Serilog;
 using System.Data;
@@ -25,7 +22,7 @@ namespace Com.Coppel.SDPC.Infrastructure.Services;
 public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 {
 	/// Inyección de servicios
-	private readonly Serilog.ILogger _log = Log.Logger;
+	private readonly ILogger _log = Log.Logger;
 	private readonly CarterasDbContext _carterasDbContext;
 	private readonly IServiceApiAsignacionDeLinea _serviceApi;
 	private readonly IServiceEmail _serviceEmail;
@@ -93,10 +90,10 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 		try
 		{
 			DateTime mostRecentDate = _catalogosDbContext.CtlAsignacionDeLineas.Max(i => i.FechaArranque);
-			List<CtlAsignacionDeLinea> records = _catalogosDbContext.CtlAsignacionDeLineas.AsNoTracking().Where(i => i.FechaArranque.Date == mostRecentDate.Date).ToList();
-			CtlAsignacionDeLinea test = records.FirstOrDefault(i => _listOfValidStatusToBeCensed.Contains(i.Estatus) && i.FechaArranque.Date != bannedDate && i.FechaArranque.Date <= startDate.Date)!;
+			List<CtlAsignacionDeLinea> records = [.. _catalogosDbContext.CtlAsignacionDeLineas.AsNoTracking().Where(i => i.FechaArranque.Date == mostRecentDate.Date)];
+			CtlAsignacionDeLinea testRecord = records.FirstOrDefault(i => _listOfValidStatusToBeCensed.Contains(i.Estatus) && i.FechaArranque.Date != bannedDate && i.FechaArranque.Date <= startDate.Date)!;
 
-			if (test != null && startDate.Date == cutAt20.Date)
+			if (testRecord != null && startDate.Date == cutAt20.Date)
 			{
 				List<CtlAsignacionDeLinea> data = records
 					.Where(i =>
@@ -112,6 +109,48 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 				{
 					ChangeIntermediateTableStatus(_puntoDeConsumo.NomTbDestino, EstatusType.EnProceso, result[0].FechaArranque, _parameters);
 				}
+
+				return result;
+			}
+			else
+			{
+				return [];
+			}
+		}
+		catch (Exception)
+		{
+			return [];
+		}
+	}
+
+	private List<dynamic> GetSensedParametersAfter20()
+	{
+		List<dynamic> result = [];
+		DateTime startDate = DateTime.Now;
+		DateTime bannedDate = new(1900, 01, 01, 0, 0, 0, DateTimeKind.Local);
+
+		if (!Utils.IsInProduction())
+		{
+			startDate = _testDates.Today;
+		}
+
+		try
+		{
+			DateTime mostRecentDate = _catalogosDbContext.CtlAsignacionDeLineas.Max(i => i.FechaArranque);
+			List<CtlAsignacionDeLinea> records = [.. _catalogosDbContext.CtlAsignacionDeLineas.AsNoTracking().Where(i => i.FechaArranque.Date == mostRecentDate.Date)];
+			CtlAsignacionDeLinea testRecord = records.FirstOrDefault(i => _listOfValidStatusToBeCensed.Contains(i.Estatus) && i.FechaArranque.Date != bannedDate && i.FechaArranque.Date <= startDate.Date)!;
+
+			if (testRecord != null)
+			{
+				List<CtlAsignacionDeLinea> data = records
+					.Where(i =>
+						_listOfValidStatusToBeCensed.Contains(i.Estatus) &&
+						i.FechaArranque.Date != bannedDate &&
+						i.FechaArranque.Date <= startDate.Date
+					)
+					.ToList();
+
+				data.ForEach(i => { result.Add(i); });
 
 				return result;
 			}
@@ -295,14 +334,15 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 		{
 			transaction.Rollback();
 			string message = string.Format(SystemMessages.ERROR_ACTUALIZAR_TABLA, Utils.GetTableName(typeof(CatParametrosasignacionlinea)));
+			_log.Warning(message);
 			_serviceEmail.SendMailCarterasReplication(_puntoDeConsumo, _contactsOfCarteraCentral, Utils.GetTableName(typeof(CatParametrosasignacionlinea)), Enum.GetName(typeof(DatabaseType), DatabaseType.Catalogos)!, _parameters[0].FechaArranque, false);
 			throw;
 		}
 	}
 
-	private void ProcessParametersOfCatalogos()
+	private void ProcessParametersInCatalogos()
 	{
-		string message = string.Empty;
+		string message;
 		using var transaction = _catalogosDbContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted);
 		try
 		{
@@ -515,11 +555,10 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 				message = $"{SystemMessages.CENSADO_PARAMETROS}Ok";
 				_log.Information(message);
 
-				ProcessParametersOfCatalogos();
+				ProcessParametersInCatalogos();
 				ChangeIntermediateTableStatus(_puntoDeConsumo.NomTbDestino, EstatusType.Actualizado, _parameters[0].FechaArranque, _parameters);
 				SendCifrasDeControl();
-				ChangeIntermediateTableStatus(_puntoDeConsumo.NomTbDestino, EstatusType.Replicando, _parameters[0].FechaArranque, _parameters);
-				
+				ChangeIntermediateTableStatus(_puntoDeConsumo.NomTbDestino, EstatusType.Replicando, _parameters[0].FechaArranque, _parameters);				
 			}
 			else
 			{
@@ -546,8 +585,8 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 		}
 		catch (Exception)
 		{
-			message = string.Format(SystemMessages.FINALIZA_BD, Enum.GetName(typeof(DatabaseType), DatabaseType.Catalogos)!);
-			_log.Information(message);
+			message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+			_log.Verbose(message);
 
 			ChangeIntermediateTableStatus(_puntoDeConsumo.NomTbDestino, EstatusType.Fallido, _parameters[0].FechaArranque, _parameters);
 			return false;
@@ -558,6 +597,63 @@ public class ServiceAsignacionDeLinea : ServiceUtils, IServiceAsignacionDeLinea
 
 	public bool ProcessParametersCarterasAfter20(string token)
 	{
-		throw new NotImplementedException();
+		string message;
+		try
+		{
+			message = string.Format(SystemMessages.INICIO_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+			_log.Verbose(message);
+
+			if (!_carterasDbContext.Database.CanConnect())
+			{
+				message = string.Format(SystemMessages.ERROR_CONEXION_DATABASE, Enum.GetName(typeof(DatabaseType), DatabaseType.Carteras)!);
+				_log.Warning(message);
+				return false;
+			}
+
+			DownloadParameters(_serviceApi, token, _puntoDeConsumo);
+			_parameters = GetSensedParametersAfter20();
+
+			if (_parameters.Count != 0)
+			{
+				message = $"{SystemMessages.CENSADO_PARAMETROS}Ok";
+				_log.Information(message);
+			}
+			else
+			{
+				message = $"{SystemMessages.CENSADO_PARAMETROS}No hay parámetros pendientes de procesar en [{_puntoDeConsumo.NomTbDestino}]";
+				_log.Warning(message);
+
+				message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+				_log.Verbose(message);
+				return false;
+			}
+
+			try
+			{
+				if (!Cuts.CutAt20sCarteras(_testDates) || !Cuts.CurrentDateIsInRange(_testDates))
+				{
+					message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+					_log.Verbose(message);	
+					return false;
+				}
+			}
+			catch (Exception)
+			{
+				_serviceEmail.SendErrorMail(_puntoDeConsumo, _contactsOfCarteraCentral, Enum.GetName(typeof(DatabaseType), DatabaseType.Carteras)!, Utils.GetTableName(typeof(CatParametrosasignacionlinea)));
+				return false;
+			}
+
+			message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+			_log.Verbose(message);
+
+			return true;
+		}
+		catch (Exception)
+		{
+			message = string.Format(SystemMessages.FIN_PROCESO, _puntoDeConsumo.NomFuncionalidad);
+			_log.Verbose(message);
+
+			return false;
+		}
 	}
 }

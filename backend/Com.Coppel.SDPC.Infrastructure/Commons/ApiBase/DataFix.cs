@@ -1,6 +1,6 @@
-﻿using Com.Coppel.SDPC.Application.Models.Persistence;
-using Com.Coppel.SDPC.Application.ViewModels.ApiModels.Resposes;
-using Com.Coppel.SDPC.Application.ViewModels.ApiModels.Resposes.TasaInteres;
+﻿using Com.Coppel.SDPC.Application.Models.ApiModels.Resposes;
+using Com.Coppel.SDPC.Application.Models.ApiModels.Resposes.TasaInteres;
+using Com.Coppel.SDPC.Application.Models.Persistence;
 using Com.Coppel.SDPC.Core.Catalogos;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;

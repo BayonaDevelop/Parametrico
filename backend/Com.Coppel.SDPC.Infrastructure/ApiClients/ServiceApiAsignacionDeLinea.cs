@@ -4,7 +4,6 @@ using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Application.Models.Persistence;
 using Com.Coppel.SDPC.Core.Catalogos;
 using Com.Coppel.SDPC.Infrastructure.Commons;
-using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
 using Newtonsoft.Json.Linq;
 
 namespace Com.Coppel.SDPC.Infrastructure.ApiClients;

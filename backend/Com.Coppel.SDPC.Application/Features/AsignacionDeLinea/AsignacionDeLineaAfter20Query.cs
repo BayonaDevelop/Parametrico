@@ -1,3 +1,3 @@
 ﻿namespace Com.Coppel.SDPC.Application.Features.AsignacionDeLinea;
 
-public record AsignacionDeLineaAfter20Query(string token);
+public record AsignacionDeLineaAfter20Query(string Token);

@@ -53,7 +53,7 @@ public class ServiceApiToken : ServiceUtils, IServiceApiToken
 				AppKey = parameters.First(i => i.NombreParametro!.CompareTo("appKey") == 0).ValorParametro!
 			};
 
-			List<KeyValuePair<string, string>> headers = [ new KeyValuePair<string, string>("Content-Type", "text/plain") ];
+			/// List<KeyValuePair<string, string>> headers = [ new KeyValuePair<string, string>("Content-Type", "text/plain") ];
 
 			dynamic requestBody = new
 			{

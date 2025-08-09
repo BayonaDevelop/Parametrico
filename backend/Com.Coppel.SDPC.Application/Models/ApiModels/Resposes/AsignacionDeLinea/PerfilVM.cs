@@ -1,5 +1,6 @@
 ﻿namespace Com.Coppel.SDPC.Application.Models.ApiModels.Resposes.AsignacionDeLinea;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "We need to break Naming Styles")]
 public class PerfilVM
 {
 	public int idu_perfil { get; set; }
