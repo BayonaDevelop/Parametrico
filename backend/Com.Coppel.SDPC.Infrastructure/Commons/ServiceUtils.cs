@@ -4,6 +4,8 @@ using Com.Coppel.SDPC.Application.Models.Services;
 using Com.Coppel.SDPC.Core.Catalogos;
 using Com.Coppel.SDPC.Infrastructure.Commons.ApiBase;
 using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Diagnostics;
@@ -147,5 +149,110 @@ public class ServiceUtils(CatalogosDbContext catalogosDbContext) : ApiClient
 		string message = string.Format(SystemMessages.DESCARGA_PARAMETROS, puntoDeConsumo.NomTbDestino);
 		ApiResultType getDataResult = serviceApi.GetData(token, puntoDeConsumo);
 		LogParametersDownload(message, getDataResult);
+	}
+
+	public bool ChangeIntermediateTableStatus(string tableName, EstatusType estatus, DateTime today, List<dynamic> parameters = null!, bool carteraEnLinea = false)
+	{
+		try
+		{
+			using SqlConnection connection = new(_catalogosDbContext.Database.GetConnectionString());
+			string query = carteraEnLinea ? $"UPDATE {tableName} SET estatusCL = @estatus" : $"UPDATE {tableName} SET estatus = @estatus";
+			if (estatus == EstatusType.Finalizado)
+			{
+				query += carteraEnLinea ? ", fechaActualizacionCL = @fechaActualizacion" : ", fechaActualizacion = @fechaActualizacion";
+			}
+
+			query += " WHERE YEAR(fechaArranque) = @year AND " +
+				"MONTH(fechaArranque) = @month AND " +
+				"DAY(fechaArranque) = @day";
+
+			if (estatus == EstatusType.Finalizado)
+			{
+				connection.Execute(query, new
+				{
+					estatus = (int)estatus,
+					year = today.Year,
+					month = today.Month,
+					day = today.Day,
+					fechaActualizacion = DateTime.Now
+				});
+			}
+			else
+			{
+				connection.Execute(query, new
+				{
+					estatus = (int)estatus,
+					year = today.Year,
+					month = today.Month,
+					day = today.Day
+				});
+			}
+
+			if (parameters != null)
+			{
+				foreach (var item in parameters)
+				{
+					if (carteraEnLinea)
+					{
+						item.EstatusCl = (int)estatus;
+					}
+					else
+					{
+						item.Estatus = (int)estatus;
+					}
+				}
+			}
+
+			return true;
+		}
+		catch (Exception)
+		{
+			Debug.WriteLine("Error al cambiar el estatus de los parámetros");
+			return false;
+		}
+	}
+
+	public bool ExistBackup(DatabaseType database, DateTime today, string tableName)
+	{
+		try
+		{
+			string query = $"SELECT COUNT(BaseDatosOrigen) FROM {tableName} WHERE BaseDatosOrigen = @baseDatos AND REPLACE(CONVERT(varchar, fechaAlta, 103), '-', '/') = @fecha";
+			var parameters = new
+			{
+				baseDatos = (int)database,
+				fecha = $"{(today.Day < 10 ? $"0{today.Day}" : today.Day)}/{(today.Month < 10 ? $"0{today.Month}" : today.Month)}/{today.Year}"
+			};
+
+			using SqlConnection connection = new(_catalogosDbContext.Database.GetConnectionString());
+
+			return connection.ExecuteScalar<int>(query, parameters) > 0;
+		}
+		catch (Exception)
+		{
+			string message = $"\t\t° Ocurrio un error al consultar la tabla [{tableName}]";
+			_log.Warning(message);
+			throw;
+		}
+	}
+
+	public bool UndoBackupByDatabase(DatabaseType database, DateTime today, string tableName)
+	{
+		try
+		{
+			using SqlConnection connection = new(_catalogosDbContext.Database.GetConnectionString());
+			string query = $"DELETE FROM {tableName} WHERE BaseDatosOrigen = @baseDatos AND REPLACE(CONVERT(varchar, fechaAlta, 103), '-', '/') = @fecha";
+
+			connection.Execute(query, new
+			{
+				baseDatos = (int)database,
+				fecha = $"{(today.Day < 10 ? $"0{today.Day}" : today.Day)}/{(today.Month < 10 ? $"0{today.Month}" : today.Month)}/{today.Year}"
+			});
+
+			return true;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
 	}
 }

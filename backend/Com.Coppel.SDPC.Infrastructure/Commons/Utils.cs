@@ -1,6 +1,8 @@
 ﻿using Com.Coppel.SDPC.Application.Models.Enums;
 using Com.Coppel.SDPC.Application.Models.Persistence;
+using Com.Coppel.SDPC.Infrastructure.Commons.DataContexts;
 using iText.Kernel.Crypto;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Serilog;
@@ -15,6 +17,37 @@ namespace Com.Coppel.SDPC.Infrastructure.Commons;
 public static class Utils
 {
 	private static readonly string _basePath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory)!.Replace("file:\\", "")!;
+
+	private static int GetPropertyIndex(PropertyDescriptorCollection properties, string property)
+	{
+		for (int i = 0; i < properties.Count; i++)
+		{
+			if (properties[i].DisplayName.Equals(property))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private static DbContext GetDbContext(Type table)
+	{
+		var namespaceParts = table.FullName!.Split('.');
+		var connectionStringName = namespaceParts[4];
+
+		DbContext result = connectionStringName switch
+		{
+			"Carteras" => new CarterasDbContext(),
+			"Cat" => new CatDbContext(),
+			"ControlTiendas" => new ControlTiendasDbContext(),
+			"ListadosCobranza" => new ListadosCobranzaDbContext(),
+			"Emision20" => new Emision20DbContext(),
+			_ => new CatalogosDbContext(),
+		};
+
+		return result;
+	}
 
 	public static IConfiguration GetConfiguration
 	{
@@ -62,19 +95,6 @@ public static class Utils
 		}
 
 		return result;
-	}
-
-	private static int GetPropertyIndex(PropertyDescriptorCollection properties, string property)
-	{
-		for (int i = 0; i < properties.Count; i++)
-		{
-			if (properties[i].DisplayName.Equals(property))
-			{
-				return i;
-			}
-		}
-
-		return -1;
 	}
 
 	public static List<string> GetClassHeaders(Type classType)
@@ -258,5 +278,17 @@ public static class Utils
 		}
 	}
 
-	
+	public static string GetTableName(Type table)
+	{
+		var namespaceParts = table.FullName!.Split('.');
+		var isPostgreSQL = namespaceParts[4].CompareTo("CarteraEnLinea") == 0;
+		var dbContext = GetDbContext(table);
+		var entityType = dbContext.Model.FindEntityType(table);
+		var schemaText = isPostgreSQL ? "public" : "dbo";
+
+		var schemaName = schemaText;
+		var tableName = entityType!.GetTableName();
+
+		return tableName == string.Empty ? string.Empty : $"{tableName}";
+	}
 }
